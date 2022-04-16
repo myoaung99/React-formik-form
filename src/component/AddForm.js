@@ -1,70 +1,27 @@
 import * as Yup from "yup";
-import { useState } from "react";
-import { Button, Col, Container, FormGroup, Input, Row } from "reactstrap";
-import { Formik, Form, useField } from "formik";
+import { Button, Col, Container, Row } from "reactstrap";
+import { Formik, Form, useFormik } from "formik";
 import "bootstrap/dist/css/bootstrap.min.css";
 import useHTTP from "../hooks/useHTTP";
 import ErrorModal from "../UI/ErrorModal";
 
-const MyTextInput = ({ label, ...props }) => {
-  const [field, meta] = useField(props);
-  return (
-    <FormGroup>
-      <label className="py-1" htmlFor={props.id || props.name}>
-        {label}
-      </label>
-      <Input className="text-input" {...field} {...props} />
-      {meta.touched && meta.error ? (
-        <div className="error">{meta.error}</div>
-      ) : null}
-    </FormGroup>
-  );
-};
-
-const MyTextArea = ({ label, ...props }) => {
-  const [field, meta] = useField(props);
-  return (
-    <FormGroup>
-      <label className="py-1" htmlFor={props.id || props.name}>
-        {label}
-      </label>
-      <Input className="text-area" {...field} {...props} />
-      {meta.touched && meta.error ? (
-        <div className="error">{meta.error}</div>
-      ) : null}
-    </FormGroup>
-  );
-};
-
-const MySelect = ({ label, ...props }) => {
-  const [field, meta] = useField(props);
-  return (
-    <FormGroup>
-      <label className="py-1" htmlFor={props.id || props.name}>
-        {label}
-      </label>
-      <Input {...field} {...props} />
-      {meta.touched && meta.error ? (
-        <div className="error">{meta.error}</div>
-      ) : null}
-    </FormGroup>
-  );
-};
-
 // to do with POST response data
-const transformData = (data) => {
-  const id = data.name;
-  const createNewItem = { ...data[id], id: id };
+// const transformData = (data) => {
+//   const id = data.name;
+//   const createNewItem = { ...data[id], id: id };
 
-  console.log(createNewItem);
-};
+//   console.log(createNewItem);
+// };
 
 // And now we can use these
 const AddForm = () => {
+  // isolate generic formik components to useFormik custom hook
+  const { MyTextInput, MyTextArea, MySelect } = useFormik();
+
   // isolate request logic to useHTTP custom hook
   const { isLoading, error, sendHttp, isModalShow, modalHandler } = useHTTP();
 
-  // error modal logic
+  // conditional error modal logic
   const modal = isModalShow && (
     <ErrorModal onClose={modalHandler}>
       <p className="h5">Something went wrong</p>
@@ -98,11 +55,14 @@ const AddForm = () => {
           Description: Yup.string().max(50, "Must be 50 characters or less"),
         })}
         onSubmit={(values, { setSubmitting }) => {
+          // random number for ID
           const rand = Math.random();
+          // new Object value with ID
           const newValues = {
             ...values,
             id: rand,
           };
+          // request configuration
           const requestConfig = {
             url: "https://react-5826f-default-rtdb.firebaseio.com/shop-items.json",
             method: "POST",
@@ -111,6 +71,7 @@ const AddForm = () => {
               "Content-Type": "application/json",
             },
           };
+          // call http function
           sendHttp(requestConfig);
           setSubmitting(false);
         }}
@@ -118,8 +79,8 @@ const AddForm = () => {
         <Form>
           {modal}
           <Container>
-            <h1 className="text-center my-5">Add Items</h1>
-
+            <h1 className="text-center my-5">Add Item</h1>
+            {/* Item Name and Quantity Row*/}
             <Row>
               <Col sm="12" md="6">
                 <MyTextInput
@@ -140,6 +101,7 @@ const AddForm = () => {
               </Col>
             </Row>
 
+            {/* Price and Select Row*/}
             <Row>
               <Col sm="12" md="6">
                 <MyTextInput
@@ -159,7 +121,7 @@ const AddForm = () => {
                 </MySelect>
               </Col>
             </Row>
-
+            {/* Description Row*/}
             <Row>
               <Col>
                 <MyTextArea
@@ -171,6 +133,7 @@ const AddForm = () => {
               </Col>
             </Row>
 
+            {/* Form action*/}
             <Row>
               <Col>
                 <div>
