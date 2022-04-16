@@ -7,12 +7,13 @@ import ErrorModal from "../UI/ErrorModal";
 import useFormikField from "../hooks/useFormikField";
 
 // to do with POST response data
-// const transformData = (data) => {
-//   const id = data.name;
-//   const createNewItem = { ...data[id], id: id };
+const transformData = (data) => {
+  const id = data.name;
+  const createNewItem = { ...data[id], id: id };
 
-//   console.log(createNewItem);
-// };
+  // parent က state ထဲကို post လုပ်တဲ့ item ထည့်ရန် ( fetch မလုပ်ပဲ item အသစ်နဲ့ UI update ဖြစ်စေချင်လို့)
+  console.log(createNewItem);
+};
 
 // And now we can use these
 const AddForm = () => {
@@ -73,7 +74,7 @@ const AddForm = () => {
             },
           };
           // call http function
-          sendHttp(requestConfig);
+          sendHttp(requestConfig, transformData);
           setSubmitting(false);
         }}
       >

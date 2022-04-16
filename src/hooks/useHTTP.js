@@ -6,7 +6,7 @@ const useHTTP = () => {
   const [isModalShow, setIsModalShow] = useState(false);
 
   // general fetch function
-  const sendHttp = async (fetchConfig) => {
+  const sendHttp = async (fetchConfig, applyData) => {
     // item name တူရင် အရင် ရှိတဲ့ qty နဲ့ ထပ်ထည့်တဲ့ qty ပေါင်းတဲ့ feature ထည့်ရန်
 
     setIsLoading(true);
@@ -22,8 +22,8 @@ const useHTTP = () => {
         throw new Error("Something went wrong", response);
       }
 
-      // const responseData = await response.json();
-      // applyData(responseData);
+      const responseData = await response.json();
+      applyData(responseData);
 
       // sent to parent component
     } catch (err) {
