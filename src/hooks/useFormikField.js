@@ -3,7 +3,7 @@ import { FormGroup, Input } from "reactstrap";
 import { useField } from "formik";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const useFormik = () => {
+const useFormikField = () => {
   const MyTextInput = ({ label, ...props }) => {
     const [field, meta] = useField(props);
     return (
@@ -56,4 +56,4 @@ const useFormik = () => {
   };
 };
 
-export default useFormik;
+export default useFormikField;

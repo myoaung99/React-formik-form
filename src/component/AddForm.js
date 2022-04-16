@@ -1,9 +1,10 @@
 import * as Yup from "yup";
 import { Button, Col, Container, Row } from "reactstrap";
-import { Formik, Form, useFormik } from "formik";
+import { Formik, Form } from "formik";
 import "bootstrap/dist/css/bootstrap.min.css";
 import useHTTP from "../hooks/useHTTP";
 import ErrorModal from "../UI/ErrorModal";
+import useFormikField from "../hooks/useFormikField";
 
 // to do with POST response data
 // const transformData = (data) => {
@@ -16,7 +17,7 @@ import ErrorModal from "../UI/ErrorModal";
 // And now we can use these
 const AddForm = () => {
   // isolate generic formik components to useFormik custom hook
-  const { MyTextInput, MyTextArea, MySelect } = useFormik();
+  const { MyTextInput, MyTextArea, MySelect } = useFormikField();
 
   // isolate request logic to useHTTP custom hook
   const { isLoading, error, sendHttp, isModalShow, modalHandler } = useHTTP();
