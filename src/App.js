@@ -1,44 +1,154 @@
 import React from "react";
-import { useFormik } from "formik";
+import { Formik, Form, useField, ErrorMessage } from "formik";
+import * as Yup from "yup";
 import "./App.css";
 
-const SignupForm = () => {
-  const formik = useFormik({
-    initialValues: { email: "", firstName: "", lastName: "" },
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
-    },
-  });
+// const validate = (values) => {
+//   const errors = {};
+
+//   if (!values.firstName) {
+//     errors.firstName = "Required!";
+//   } else if (values.firstName > 15) {
+//     errors.firstName = "Must be 15 characters or less.";
+//   }
+
+//   if (!values.lastName) {
+//     errors.lastName = "Required!";
+//   } else if (values.lastName > 20) {
+//     errors.lastName = "Must be 20 characters or less.";
+//   }
+
+//   if (!values.email) {
+//     errors.email = "Required!";
+//   } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+//     errors.email = "Invalid email address.";
+//   }
+
+//   return errors;
+// };
+
+const MyTextInput = ({ label, ...props }) => {
+  // useField() returns [formik.getFieldProps(), formik.getFieldMeta()]
+  // which we can spread on <input>. We can use field meta to show an error
+  // message if the field is invalid and it has been touched (i.e. visited)
+  const [field, meta] = useField(props);
   return (
-    <form onSubmit={formik.handleSubmit}>
-      <label htmlFor="firstName">First Name</label>
-      <input
-        id="firstName"
-        type="text"
-        name="firstName"
-        onChange={formik.handleChange}
-        value={formik.values.firstName}
-      />
-      <label htmlFor="lastName">Last Name</label>
-      <input
-        id="lastName"
-        name="lastName"
-        type="text"
-        onChange={formik.handleChange}
-        value={formik.values.lastName}
-      />
-      <label htmlFor="email">Email Address</label>
-      <input
-        id="email"
-        name="email"
-        type="email"
-        onChange={formik.handleChange}
-        value={formik.values.email}
-      />
-      <div>
-        <button type="submit">Submit</button>
-      </div>
-    </form>
+    <>
+      <label htmlFor={props.id || props.name}>{label}</label>
+      <input className="text-input" {...field} {...props} />
+      {meta.touched && meta.error ? (
+        <div className="error">{meta.error}</div>
+      ) : null}
+    </>
+  );
+};
+
+const MySelect = ({ label, ...props }) => {
+  const [field, meta] = useField(props);
+  return (
+    <div>
+      <label htmlFor={props.id || props.name}>{label}</label>
+      <select {...field} {...props} />
+      {meta.touched && meta.error ? (
+        <div className="error">{meta.error}</div>
+      ) : null}
+    </div>
+  );
+};
+
+const MyCheckbox = ({ children, ...props }) => {
+  // React treats radios and checkbox inputs differently other input types, select, and textarea.
+  // Formik does this too! When you specify `type` to useField(), it will
+  // return the correct bag of props for you -- a `checked` prop will be included
+  // in `field` alongside `name`, `value`, `onChange`, and `onBlur`
+  const [field, meta] = useField({ ...props, type: "checkbox" });
+  return (
+    <div>
+      <label className="checkbox-input">
+        <input type="checkbox" {...field} {...props} />
+        {children}
+      </label>
+      {meta.touched && meta.error ? (
+        <div className="error">{meta.error}</div>
+      ) : null}
+    </div>
+  );
+};
+
+const SignupForm = () => {
+  return (
+    <Formik
+      initialValues={{
+        email: "",
+        firstName: "",
+        lastName: "",
+        jobType: "",
+        acceptedTerms: false,
+      }}
+      validationSchema={Yup.object({
+        firstName: Yup.string()
+          .max(15, "Must be 15 characters or less")
+          .required("Required"),
+        lastName: Yup.string()
+          .max(20, "Must be 20 characters or less")
+          .required("Required"),
+        email: Yup.string().email("Invalid email address").required("Required"),
+        acceptedTerms: Yup.boolean()
+          .required("Required")
+          .oneOf([true], "You must accept the terms and conditions."),
+        jobType: Yup.string()
+          .oneOf(
+            ["designer", "development", "product", "other"],
+            "Invalid Job Type"
+          )
+          .required("Required"),
+      })}
+      onSubmit={(values, { setSubmitting }) => {
+        setTimeout(() => {
+          alert(JSON.stringify(values, null, 2));
+          setSubmitting(false);
+        }, 400);
+      }}
+    >
+      <Form>
+        <MyTextInput
+          label="First Name"
+          type="text"
+          name="firstName"
+          placeholder="First Name"
+        />
+
+        <MyTextInput
+          label="Last Name"
+          type="text"
+          name="lastName"
+          placeholder="Last Name"
+        />
+
+        <MyTextInput
+          label="E-mail"
+          type="email"
+          name="email"
+          placeholder="email"
+        />
+
+        <MySelect label="Job Type" name="jobType">
+          <option value="">Select a job type</option>
+          <option value="designer">Designer</option>
+          <option value="development">Developer</option>
+          <option value="product">Product Manager</option>
+          <option value="other">Other</option>
+        </MySelect>
+
+        <MyCheckbox name="acceptedTerms">
+          I accept the terms and conditions
+        </MyCheckbox>
+
+        <div>
+          <button type="submit">Submit</button>
+        </div>
+      </Form>
+    </Formik>
   );
 };
 
