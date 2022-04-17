@@ -1,29 +1,21 @@
 import React from "react";
+import ErrorModal from "../UI/ErrorModal";
 import Item from "./Item";
-import useHTTP from "../hooks/useHTTP";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-const Items = ({ items, onAdd }) => {
-  const { isLoading, error, sendHttp, isModalShow, modalHandler } = useHTTP();
-
-  const requestConfig = {
-    url: "https://react-5826f-default-rtdb.firebaseio.com/shop-items.json",
-  };
-
-  const transformData = (data) => {
-    console.log(data);
-  };
-
-  const fetchItems = async () => {
-    const requestConfig = {
-      url: "https://react-5826f-default-rtdb.firebaseio.com/shop-items.json",
-    };
-
-    sendHttp(requestConfig, transformData);
-  };
-
+const Items = ({ items, isLoading, hasError }) => {
+  console.log(items);
   const lists = items.map((item) => <Item key={item.id} item={item} />);
 
-  return <div className="items-container">{lists}</div>;
+  return (
+    <div className="items-container">
+      {isLoading && <p className="loading-text">Loading....</p>}
+      {hasError && (
+        <p className="loading-text error-text">Error... Just Try To Refresh</p>
+      )}
+      {lists}
+    </div>
+  );
 };
 
 export default Items;

@@ -1,65 +1,48 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AddForm from "./component/AddForm";
 import Items from "./component/Items";
+import useHTTP from "./hooks/useHTTP";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const DUMMY_ITEMS = [
-  {
-    id: 0.12232,
-    name: "Keyboard",
-    price: 123,
-    quantity: 1,
-    description: "some thing",
-  },
-  {
-    id: 0.4535,
-    name: "Mouse",
-    price: 123,
-    quantity: 1,
-    description: "some thing",
-  },
-  {
-    id: 0.1213112,
-    name: "Monitor",
-    price: 123,
-    quantity: 1,
-    description: "some thing",
-  },
-  {
-    id: 0.8686,
-    name: "Monitor",
-    price: 123,
-    quantity: 1,
-    description: "some thing",
-  },
-  {
-    id: 0.080808,
-    name: "Monitor",
-    price: 123,
-    quantity: 1,
-    description: "some thing",
-  },
-  {
-    id: 0.6458,
-    name: "Monitor",
-    price: 123,
-    quantity: 1,
-    description: "some thing",
-  },
-];
-
 const App = () => {
-  const [items, setItems] = useState(DUMMY_ITEMS);
+  const [items, setItems] = useState([]);
 
-  const addItems = (item) => {
-    setItems((prev) => prev.push(item));
+  const {
+    isLoading,
+    error,
+    sendHttp: fetchItem,
+    modalHandler,
+    isModalShow,
+  } = useHTTP();
+
+  useEffect(() => {
+    const transformTasks = (itemObj) => {
+      const loadedTasks = [];
+
+      for (const itemKey in itemObj) {
+        loadedTasks.push({ id: itemKey, ...itemObj[itemKey] });
+      }
+
+      setItems(loadedTasks);
+    };
+
+    fetchItem(
+      {
+        url: "https://react-5826f-default-rtdb.firebaseio.com/shop-items.json",
+      },
+      transformTasks
+    );
+  }, []);
+
+  const addItemHandler = (item) => {
+    setItems((prevTask) => prevTask.concat(item));
   };
 
   return (
     <div className="body-container">
-      <AddForm />
-      <Items items={items} onAdd={addItems} />
+      <AddForm onAddItem={addItemHandler} />
+      <Items items={items} isLoading={isLoading} hasError={error} />
     </div>
   );
 };

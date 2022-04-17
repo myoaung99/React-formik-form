@@ -23,9 +23,11 @@
 
 .items-container {
   width: 100%;
-  min-height: 500px;
+
   display: flex;
   flex-direction: row;
+  justify-content: center;
+
   flex-wrap: wrap;
   align-content: flex-start;
   overflow: scroll;
@@ -36,6 +38,17 @@
   min-width: 50%;
   height: auto;
   animation-duration: 300ms;
+}
+
+.loading-text {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 3rem;
+}
+
+.error-text {
+  color: red;
 }
 
 @media screen and (max-width: 786px) {

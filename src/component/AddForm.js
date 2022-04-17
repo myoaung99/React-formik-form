@@ -6,22 +6,40 @@ import useHTTP from "../hooks/useHTTP";
 import ErrorModal from "../UI/ErrorModal";
 import useFormikField from "../hooks/useFormikField";
 
-// to do with POST response data
-const transformData = (data) => {
-  const id = data.name;
-  const createNewItem = { ...data[id], id: id };
-
-  // parent က state ထဲကို post လုပ်တဲ့ item ထည့်ရန် ( fetch မလုပ်ပဲ item အသစ်နဲ့ UI update ဖြစ်စေချင်လို့)
-  console.log(createNewItem);
-};
-
 // And now we can use these
-const AddForm = () => {
+const AddForm = (props) => {
   // isolate generic formik components to useFormik custom hook
   const { MyTextInput, MyTextArea, MySelect } = useFormikField();
 
   // isolate request logic to useHTTP custom hook
-  const { isLoading, error, sendHttp, isModalShow, modalHandler } = useHTTP();
+  const {
+    isLoading,
+    error,
+    sendHttp: sendItemRequest,
+    isModalShow,
+    modalHandler,
+  } = useHTTP();
+
+  const createItem = (itemInfo, itemData) => {
+    const generatedId = itemData.name;
+    const createdItem = { id: generatedId, ...itemInfo };
+
+    props.onAddItem(createdItem);
+  };
+
+  const enterItemHandler = async (itemInfo) => {
+    sendItemRequest(
+      {
+        url: "https://react-5826f-default-rtdb.firebaseio.com/shop-items.json",
+        method: "POST",
+        body: itemInfo,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+      createItem.bind(null, itemInfo)
+    );
+  };
 
   // conditional error modal logic
   const modal = isModalShow && (
@@ -39,22 +57,22 @@ const AddForm = () => {
     <div className="form-container p-3">
       <Formik
         initialValues={{
-          Name: "",
-          Quantity: "",
-          Price: "",
-          Category: "",
-          Description: "",
+          name: "",
+          quantity: "",
+          price: "",
+          category: "",
+          description: "",
         }}
         validationSchema={Yup.object({
-          Name: Yup.string()
+          name: Yup.string()
             .max(15, "Must be 15 characters or less")
             .required("Required"),
-          Quantity: Yup.number().positive().integer().required("Required"),
-          Price: Yup.number().positive().required("Required"),
-          Category: Yup.string()
+          quantity: Yup.number().positive().integer().required("Required"),
+          price: Yup.number().positive().required("Required"),
+          category: Yup.string()
             .oneOf(["food", "drink", "dryFood", "other"], "Invalid Item Type")
             .required("Required"),
-          Description: Yup.string().max(50, "Must be 50 characters or less"),
+          description: Yup.string().max(50, "Must be 50 characters or less"),
         })}
         onSubmit={(values, { setSubmitting }) => {
           // random number for ID
@@ -64,17 +82,9 @@ const AddForm = () => {
             ...values,
             id: rand,
           };
-          // request configuration
-          const requestConfig = {
-            url: "https://react-5826f-default-rtdb.firebaseio.com/shop-items.json",
-            method: "POST",
-            body: newValues,
-            headers: {
-              "Content-Type": "application/json",
-            },
-          };
+
           // call http function
-          sendHttp(requestConfig, transformData);
+          enterItemHandler(newValues);
           setSubmitting(false);
         }}
       >
@@ -87,7 +97,7 @@ const AddForm = () => {
               <Col sm="12" md="6">
                 <MyTextInput
                   label="Item Name"
-                  name="Name"
+                  name="name"
                   type="text"
                   placeholder="Item"
                 />
@@ -96,7 +106,7 @@ const AddForm = () => {
               <Col sm="12" md="6">
                 <MyTextInput
                   label="Quantity"
-                  name="Quantity"
+                  name="quantity"
                   type="number"
                   placeholder="Quantity"
                 />
@@ -108,13 +118,13 @@ const AddForm = () => {
               <Col sm="12" md="6">
                 <MyTextInput
                   label="Price"
-                  name="Price"
+                  name="price"
                   type="number"
                   placeholder="Price"
                 />
               </Col>
               <Col sm="12" md="6">
-                <MySelect label="Category" name="Category" type="select">
+                <MySelect label="Category" name="category" type="select">
                   <option value="">Select a item type</option>
                   <option value="food">Food</option>
                   <option value="drink">Drink</option>
@@ -128,7 +138,7 @@ const AddForm = () => {
               <Col>
                 <MyTextArea
                   label="Description"
-                  name="Description"
+                  name="description"
                   type="textarea"
                   rows="5"
                 />
